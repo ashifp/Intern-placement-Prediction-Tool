@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Conversion Prediction Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* General consistency as other pages */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e2f;
+            color: #dcdcdc;
+            display: flex;
+            flex-direction: row;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 30%;
+            background-color: #2b2b40;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+        .main-content {
+            width: 70%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #00d09c;
+            margin-bottom: 20px;
+        }
+        .section {
+            padding: 15px;
+            background-color: #3b3b52;
+            border: 1px solid #444;
+            border-radius: 8px;
+        }
+        .section h2 {
+            font-size: 1.4rem;
+            color: #00d09c;
+            margin-bottom: 10px;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #00d09c;
+            color: #fff;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .btn:hover {
+            background-color: #00b885;
+        }
+        input[type="range"], input[type="number"] {
+            width: 100%;
+            margin: 10px 0;
+            border: 1px solid #666;
+            border-radius: 5px;
+            font-size: 1rem;
+            background-color: #1e1e2f;
+            color: #dcdcdc;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            display: block;
+            font-size: 1rem;
+            color: #dcdcdc;
+        }
+        .result {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #00d09c;
+        }
+        .email-status1 {
+            text-align: center;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #2b2b40;
+        }
+        .success {
+            color: #00d09c;
+        }
+        .error {
+            color: #ff4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <a href="{{ url_for('home') }}" style="color: #00d09c; text-decoration: none; font-weight: 500;">← Go Back to Home</a>
+        <h1>Lead Conversion Predictor</h1>
+        <!-- Sidebar content -->
+        <h1>Features</h1>
+        {% if feature_columns is not none %}
+        <div class="section">
+            <!-- <h2>Enter Lead Features</h2> -->
+            <form method="POST">
+              <h2>Intern Details</h2>
+              <div>
+                  <label for="lead_name">lead_name:</label>
+                  <input type="text" name="lead_name" id="lead_name" required>
+              </div>
+              <div>
+                  <label for="lead_email">Intern Email:</label>
+                  <input type="email" name="lead_email" id="lead_email" required>
+              </div>
+              <h2>Enter Lead Features</h2>
+
+
+              <div>
+                  <label for="Lead Interest Level">Lead Interest Level:</label>
+                  <input type="range" name="Lead Interest Level" id="Lead Interest Level"
+                    min="0" max="10" step="1" value="5"
+                    oninput="updateSliderValue('Lead Interest Level', this.value)">
+                    <span id="Lead Interest Level_value">5</span>
+              </div>
+              <div>
+                  <label for="Course Fee Offered">Course Fee Offered:</label>
+                  <input type="number" name="Course Fee Offered" id="Course Fee Offered" step="0.01" required>
+              </div>
+              <div>
+                  <label for="Potential Score">Potential Score:</label>
+                  <input type="number" name="Potential Score" id="Potential Score" step="0.01" required>
+              </div>
+
+              <div>
+                  <label for="Page Views Per Visit">Page Views Per Visit:</label>
+                  <input type="range" name="Page Views Per Visit" id="Page Views Per Visit"
+                    min="0" max="6" step="0.1" value="3"
+                    oninput="updateSliderValue('Page Views Per Visit', this.value)">
+                    <span id="Page Views Per Visit_value">3</span>
+              </div>
+              <div>
+                  <label for="Days Since Last Interaction">Days Since Last Interaction:</label>
+                  <input type="range" name="Days Since Last Interaction" id="Days Since Last Interaction"
+                    min="0" max="1000" step="1" value="50"
+                    oninput="updateSliderValue('Days Since Last Interaction', this.value)">
+                    <span id="Days Since Last Interaction_value">50</span>
+              </div>
+              <div>
+                  <label for="Interaction Time-Hour">Interaction Time-Hour:</label>
+                  <input type="number" name="Interaction Time-Hour" id="Interaction Time-Hour" step="0.01" required>
+              </div>
+              <div>
+                  <label for="Time Spent on Website">Time Spent on Website-Hours:</label>
+                  <input type="number" name="Time Spent on Website" id="Time Spent on Website" step="0.01" required>
+              </div>
+              <div>
+                  <label for="Engagement Score">Engagement Score:</label>
+                  <input type="range" name="Engagement Score" id="Engagement Score"
+                    min="0" max="100" step="1" value="50"
+                    oninput="updateSliderValue('Engagement Score', this.value)">
+                    <span id="Engagement Score_value">50</span>
+              </div>
+              <div>
+                  <label for="Age">Age:</label>
+                  <input type="range" name="Age" id="Age"
+                    min="12" max="70" step="1" value="20"
+                    oninput="updateSliderValue('Age', this.value)">
+                    <span id="Age_value">20</span>
+              </div>
+
+
+                <div class="chk">
+                    <input type="checkbox" id="chkmail" name="chkmail" value="true">
+                     Send email
+                </div>
+                <button type="submit" name="predict" class="btn">Predict</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    <div class="main-content">
+        <h1>Prediction Tool</h1>
+        <!-- Prediction form and results -->
+        {% if prediction_result is not none %}
+        <div class="section">
+            <h2>Prediction Result</h2>
+            <p class="result">Predicted Lead Conversion: <strong>{{ prediction_result }}</strong></p>
+            {% if email_status1 %}
+                <p class="email-status {% if 'successfully' in email_status1 %}success{% else %}error{% endif %}">
+                    {{ email_status1 }}
+                </p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- <div class="section">
+        <h2>Email_conformation</h2>
+        <div>
+            <label for="email_veri">Send Email:</label>
+            <select name="email_veri" id="email_veri" onchange="updateemail_veri(this.value)">
+                        <option value="None">Send Email</option>
+                        <option value="yes">yes</option>
+                        <option value="no">no</option>
+            </select>
+        </div>
+        {% if email_status1 %}
+            <p class="email-status {% if 'successfully' in email_status1 %}success{% else %}error{% endif %}">
+                {{ email_status1 }}
+            </p>
+        {% endif %}
+    </div> -->
+
+    <script>
+        // Function to update the displayed slider value
+        function updateSliderValue(feature, value) {
+            document.getElementById(feature + '_value').innerText = value;
+        }
+    </script>
+</body>
+</html>

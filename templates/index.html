@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internship Placement Prediction AI Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e2f;
+            color: #dcdcdc;
+            display: flex;
+            flex-direction: row;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 30%;
+            background-color: #2b2b40;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+        .main-content {
+            width: 70%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #00d09c;
+            margin-bottom: 20px;
+        }
+        .section {
+            padding: 15px;
+            background-color: #3b3b52;
+            border: 1px solid #444;
+            border-radius: 8px;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+        }
+        .dashboard-container {
+            height: 600px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .section h2 {
+            font-size: 1.4rem;
+            color: #00d09c;
+            margin-bottom: 10px;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #00d09c;
+            color: #fff;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .btn:hover {
+            background-color: #00b885;
+        }
+        input[type="range"], select, input[type="text"], input[type="email"] {
+            width: 100%;
+            margin: 10px 0;
+            border: 1px solid #666;
+            border-radius: 5px;
+            font-size: 1rem;
+            background-color: #1e1e2f;
+            color: #dcdcdc;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            color: #dcdcdc;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 10px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        th {
+            background-color: #00b885;
+            color: #1e1e2f;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            display: block;
+            font-size: 1rem;
+            color: #dcdcdc;
+        }
+        .result {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #00d09c;
+        }
+        .email-status {
+            text-align: center;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #2b2b40;
+        }
+        .success {
+            color: #00d09c;
+        }
+        .error {
+            color: #ff4444;
+        }
+        .chk{
+        margin-left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <a href="{{ url_for('home') }}" style="color: #00d09c; text-decoration: none; font-weight: 500;">← Go Back to Home</a>
+        <h1>Features</h1>
+        {% if feature_columns is not none %}
+        <div class="section">
+            <h2>Make a Prediction</h2>
+            <form method="POST">
+                <!-- Intern Details Section -->
+                <div class="section">
+                    <h2>Intern Details</h2>
+                    <div>
+                        <label for="intern_name">Intern Name:</label>
+                        <input type="text" name="intern_name" id="intern_name" required>
+                    </div>
+                    <div>
+                        <label for="intern_email">Intern Email:</label>
+                        <input type="email" name="intern_email" id="intern_email" required>
+                    </div>
+                </div>
+
+                <!-- Numeric Features -->
+                {% for feature in feature_columns %}
+                    {% if not feature.startswith(('Department_', 'Socioeconomic Status_', 'Mentorship Level_')) %}
+                    <div>
+                        <label for="{{ feature }}">{{ feature }}:</label>
+                        <input type="range" name="{{ feature }}" id="{{ feature }}"
+                               {% if feature == 'Age' %}
+                               min="10" max="60" step="1" value="35"
+                               {% elif feature == 'Duration of Internship (months)' %}
+                               min="0" max="25" step="1" value="12"
+                               {% elif feature == 'Performance Score' %}
+                               min="0" max="6" step="0.1" value="4"
+                               {% elif feature == 'Attendance Rate' %}
+                               min="0" max="100" step="1" value="75"
+                               {% elif feature == 'Number of Completed Projects' %}
+                               min="0" max="20" step="1" value="10"
+                               {% elif feature == 'Technical Skill Rating' %}
+                               min="0" max="6" step="0.1" value="3"
+                               {% elif feature == 'Soft Skill Rating' %}
+                               min="0" max="6" step="0.1" value="4"
+                               {% elif feature == 'Hours Worked per Week' %}
+                               min="0" max="50" step="1" value="25"
+                               {% elif feature == 'Distance from Work (miles)' %}
+                               min="0" max="100" step="1" value="50"
+                               {% elif feature == 'Recommendation Score' %}
+                               min="0" max="15" step="1" value="7"
+                               {% endif %}
+                               oninput="updateSliderValue('{{ feature }}', this.value)">
+                        <span id="{{ feature }}_value">
+                            {% if feature == 'Age' %}35{% elif feature == 'Duration of Internship (months)' %}12
+                            {% elif feature == 'Performance Score' %}5.0{% elif feature == 'Attendance Rate' %}75
+                            {% elif feature == 'Number of Completed Projects' %}10
+                            {% elif feature == 'Technical Skill Rating' %}5.0{% elif feature == 'Soft Skill Rating' %}5.0
+                            {% elif feature == 'Hours Worked per Week' %}25{% elif feature == 'Distance from Work (miles)' %}50
+                            {% elif feature == 'Recommendation Score' %}7{% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Department Dropdown -->
+                <div>
+                    <label for="department">Department:</label>
+                    <select name="department" id="department" onchange="updateDepartment(this.value)">
+                        <option value="None">Select Department</option>
+                        <option value="Department_Data Science">Data Science</option>
+                        <option value="Department_Finance">Finance</option>
+                        <option value="Department_Human Resources">Human Resources</option>
+                        <option value="Department_Marketing">Marketing</option>
+                        <option value="Department_Web Development">Web Development</option>
+                    </select>
+                </div>
+
+                <!-- Socioeconomic Status Dropdown -->
+                <div>
+                    <label for="socioeconomic_status">Socioeconomic Status:</label>
+                    <select name="socioeconomic_status" id="socioeconomic_status" onchange="updateSocioeconomicStatus(this.value)">
+                        <option value="None">Select Socioeconomic Status</option>
+                        <option value="Socioeconomic Status_High">High</option>
+                        <option value="Socioeconomic Status_Medium">Medium</option>
+                        <option value="Socioeconomic Status_Low">Low</option>
+                    </select>
+                </div>
+
+                <!-- Mentorship Level Dropdown -->
+                <div>
+                    <label for="mentorship_level">Mentorship Level:</label>
+                    <select name="mentorship_level" id="mentorship_level" onchange="updateMentorshipLevel(this.value)">
+                        <option value="None">Select Mentorship Level</option>
+                        <option value="Mentorship Level_High">High</option>
+                        <option value="Mentorship Level_Medium">Medium</option>
+                        <option value="Mentorship Level_Low">Low</option>
+                    </select>
+                </div>
+                <div class="chk">
+                    <input type="checkbox" id="chkmail" name="chkmail" value="true">
+                     Send email
+                </div>
+
+                <button type="submit" name="predict" class="btn">Predict</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="main-content">
+        <h1>Internship Placement Prediction Tool</h1>
+
+        {% if prediction_result is not none %}
+        <div class="section">
+            <h2>Prediction Result</h2>
+            <p class="result">Predicted Placement Likelihood: {{ prediction_result }}</p>
+            {% if email_status %}
+            <p class="email-status {% if 'successfully' in email_status %}success{% else %}error{% endif %}">
+                {{ email_status }}
+            </p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="section dashboard-container">
+            <h2>Power BI Dashboard</h2>
+            <iframe
+                src="https://app.powerbi.com/groups/me/reports/58de1216-d711-46cc-b5ed-9fa61cb99cc8/ReportSection?experience=power-bi"
+                allowFullScreen="true">
+            </iframe>
+        </div>
+    </div>
+
+    <script>
+        function updateSliderValue(feature, value) {
+            document.getElementById(feature + '_value').innerText = value;
+        }
+
+        function updateDepartment(value) {
+            document.querySelectorAll('input[name^="Department_"]').forEach(input => input.value = 0);
+            if (value !== "None") {
+                document.querySelector(input[name="${value}"]).value = 1;
+            }
+        }
+
+        function updateSocioeconomicStatus(value) {
+            document.querySelectorAll('input[name^="Socioeconomic Status_"]').forEach(input => input.value = 0);
+            if (value !== "None") {
+                document.querySelector(input[name="${value}"]).value = 1;
+            }
+        }
+
+        function updateMentorshipLevel(value) {
+            document.querySelectorAll('input[name^="Mentorship Level_"]').forEach(input => input.value = 0);
+            if (value !== "None") {
+                document.querySelector(input[name="${value}"]).value = 1;
+            }
+        }
+          document.querySelector("form").addEventListener("submit", function() {
+        var checkbox = document.getElementById('chkmail');
+        if (!checkbox.checked) {
+            checkbox.value = 'false';  // Set false if unchecked
+        }
+    });
+
+    </script>
+</body>
+</html>
